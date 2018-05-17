@@ -1,4 +1,4 @@
-Map映射：
+1. Map映射：
 vim配置文件中map前的n、v、nore、un等含义
 nore   表示非递归
 n      表示在普通模式下生效
@@ -7,3 +7,10 @@ i      表示在插入模式下生效
 c      表示在命令模式下生效
 un     后面跟按键组合，表示删除这个映射
 clear  表示清除相关模式下的所有映射
+
+2. vim系统剪切板
+Ubuntu 18.04，安装的vim是不支持系统剪切、粘贴的
+$ vim --version
+可以看到 -clipboard, 需要安装vim-gnome
+$ sudo apt install vim-gnome
+
