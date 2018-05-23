@@ -14,3 +14,7 @@ $ vim --version
 可以看到 -clipboard, 需要安装vim-gnome
 $ sudo apt install vim-gnome
 
+3. vim支持的特性
+$ vim --version
+预装的vim可能不支持python、perl、ruby等语言写的插件，可以自己编译VIM源代码
+
