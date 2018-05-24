@@ -19,8 +19,9 @@ $ vim --version
 预装的vim可能不支持python、perl、ruby等语言写的插件，可以自己编译VIM源代码
 
 4. vim颜色主题
-GUI版本的可以在终端选择主题，不需要安装插件。如果不满意的话，在安装其他颜色主题
+终端中使用vim,可以在终端中选择主题，不需要安装插件。如果不满意的话，在安装其他颜色主题
 eg: colorscheme molokai
+在GVIM中，可以考虑颜色主题插件
 
 5. 禁止光标闪烁
 * Ubuntu终端Gnome-terminal中，输入vim命令进入的不是GVIM, 所以在.vimrc中
