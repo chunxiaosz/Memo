@@ -22,3 +22,18 @@ $ vim --version
 GUI版本的可以在终端选择主题，不需要安装插件。如果不满意的话，在安装其他颜色主题
 eg: colorscheme molokai
 
+5. 禁止光标闪烁
+* Ubuntu终端Gnome-terminal中，输入vim命令进入的不是GVIM, 所以在.vimrc中
+set gcr=a:block-blinkon0
+并不能禁止光标闪烁，正确的做法是在终端输入
+gsettings set org.gnome.desktop.interface cursor-blink false
+
+* Ubuntu终端Gnome-terminal中，输入gvim命令进入的是GVIM,这时在.vimrc中
+set gcr=a:block-blinkon0是有效的
+
+6. 显示和隐藏gvim菜单和工具栏
+set guioptions -= TmrlRL
+set guioptions += TmrlRL
+
+
+
