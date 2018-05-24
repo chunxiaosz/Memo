@@ -18,3 +18,7 @@ $ sudo apt install vim-gnome
 $ vim --version
 预装的vim可能不支持python、perl、ruby等语言写的插件，可以自己编译VIM源代码
 
+4. vim颜色主题
+GUI版本的可以在终端选择主题，不需要安装插件。如果不满意的话，在安装其他颜色主题
+eg: colorscheme molokai
+
