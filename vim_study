@@ -36,5 +36,9 @@ set gcr=a:block-blinkon0是有效的
 set guioptions -= TmrlRL
 set guioptions += TmrlRL
 
+7. Ubuntu gnome终端使用vim时设置光标颜色，直接在终端中设置
+   GVIM中：
+	highlight cursor ...
+
 
 
