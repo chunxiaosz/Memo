@@ -43,5 +43,8 @@ set guioptions += TmrlRL
    GVIM中：
 	highlight cursor ...
 
+8. highlight的修改
+  在vim命令模式：hi Function可以查看Function高亮的定义，同理对其他分类也可以查看。
+
 
 
