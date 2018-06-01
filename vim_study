@@ -49,5 +49,18 @@ set guioptions += TmrlRL
 	hi Comment ctermfg=200
 重新打开vim,这条语句没有生效，在前面加上set background=dark后hi相关命令才生效。
 
+9. 代码标签信息
+  Exuberent Ctags: http://ctags.sourceforge.net
+
+  Ubuntu 18.04 安装 ctags
+  $ sudo apt install exuberant-ctags
+
+  // 列举支持的语言
+  $ ctags --list-languages
+  // 查看支持生成标签类型的全量列表
+  $ ctags --list-kinds=c++
+  // 生成标签文件
+  $ ctags -R --c++-kinds=+p+l+x+c+d+e+f+g+m+n+s+t+u+v --fields=+liaS --extra=+q --language-force=c++
+
 
 
