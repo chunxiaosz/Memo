@@ -62,5 +62,13 @@ set guioptions += TmrlRL
   // 生成标签文件
   $ ctags -R --c++-kinds=+p+l+x+c+d+e+f+g+m+n+s+t+u+v --fields=+liaS --extra=+q --language-force=c++
 
+10. 插件indexer.tar.gz
+    https://github.com/vim-scripts/indexer.tar.gz
+    indexer的配置文件位于~/.indexer_files（默认不存在）, 添加文件内容
+    [Project]
+    /home/dcx/Workspace/src
+
+    indexer生成的标签文件位于~/.indexer_files_tags/中
+
 
 
