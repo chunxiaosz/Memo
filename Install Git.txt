@@ -1,0 +1,94 @@
+********************************************************************
+*
+* Install and Setup Git on CentOS 7
+*
+********************************************************************
+Server
+1. # yum install git
+2. # git config --global user.name "Your Name"
+   # git config --global user.email "email@example.com"
+3. # adduser git -s /sbin/nologin
+4. # git init --bare learngit.git
+5. # chown -R git:git learngit.git
+Client
+1. $ git clone <USER>@<IP>:<The Address of Git Repo>
+
+/** Git Server利用SSH公钥验证 **/
+1. 创建SSH key
+  $ ssh-keygen -t rsa -C "youremail@example.com"
+2. Git服务器打开RSA认证
+  $ vi /etc/ssh/sshd_config
+    RSAAuthentication yes
+    PubkeyAuthentication yes
+    AuthorizedKeysFile   .ssh/authorized_keys
+3. 把用户的公钥导入authorized_keys
+  $ cat user.pub >> .ssh/authorized_keys
+
+记住：
+   以为authorized_keys是个文件夹，把用户公钥文件放在里面。其实authorized_keys是个文件，需要把公钥文件的内容写入其中
+
+********************************************************************
+*
+* Steps to install gitolite
+* 
+* https://github.com/sitaramc/gitolite
+* http://gitolite.com/gitolite/sts/#appendix-4-ssh-host-aliases
+********************************************************************
+
+Step 1: 建立一个git用户，用户管理git仓库
+1. 创建git用户
+  $ sudo useradd git
+  $ sudo passwd git
+
+Step 2: 生产管理者公钥
+  # 可以在服务器上生成，也可以在本机生成。我直接在服务器上生成，使用用户globalpeak
+  $ ssh-keygen -t rsa
+  # 将公钥移到/home/git/目录下
+  $ sudo cp /home/globalpeak/.ssh/id_rsa.pub /home/git/admin.pub
+
+Step 3: 安装gitolite
+  # 切换至git用户
+  $ su - git
+  # 创建bin目录
+  $ mkdir -p $HOME/bin
+  # 克隆gitolite源码
+  $ git clone https://github.com/sitaramc/gitolite.git
+  # 安装gitolite
+  $ gitolite/install -to $HOME/bin
+
+  Note: 提示Data Dumper错误，安装perl-Data-Dumper包
+    $ sudo yum install perl-Data-Dumper
+
+Step 4: 配置gitolite
+  # 进入git用户目录
+  $ gitolite setup -pk admin.pub
+
+Step 5: 管理gitolite
+  # 我是用服务器上globalpeak用户管理gitolite的
+  $ git clone git@192.168.1.8:gitolite-admin
+  # 修改conf/gitolite.conf文件，增加用户公钥至keydirs,然后push回服务器
+  $ git push
+
+Step 6: 生成用户私钥
+  # 生成证书，把私钥发送给用户，公钥改成用户的名字，拷贝到gitolite-admin仓库的keydirs目录下。然后修改权限，推送回服务器。
+
+Note:
+  1. 私钥不能改名字,保留原命名id_rsa放入用户的.ssh文件夹中，否则ssh密钥验证不通过。
+  2. 修改git用户shell, 会导致错误“fatal: unrecognized command '/home/git/bin/gitolite-shell”，用户无法登入就不能执行命令
+  
+
+
+
+
+
+
+
+*** 修改git用户shell ***
+  $ sudo vi /etc/shells
+    加入项 /bin/git-shell
+  $ sudo chsh git
+    修改git用户的shell
+************************
+
+
+

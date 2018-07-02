@@ -1,0 +1,272 @@
+******************************************************************************
+* 
+* CentOS 7
+* Install Redmine via Docker
+*
+******************************************************************************
+
+参考： https://hub.docker.com/_/redmine/
+
+1. Install Database (Official)
+   $ sudo docker pull postgres
+   or
+   $ sudo docker pull mysql
+
+2. Install redmine (Official)
+   $ sudo docker pull redmine
+
+3. Run Redmine
+   $ sudo docker run -d --name some-postgres -e POSTGRES_PASSWORD=secret -e POSTGRES_USER=redmine postgres
+   or
+   $ sudo docker run -d --name some-mysql -e MYSQL_ROOT_PASSWORD=secret -e MYSQL_DATABASE=redmine mysql
+
+   $ sudo docker run -d --name some-redmine --link some-postgres:postgres -p 8080:3000 redmine
+
+
+
+******************************************************************************
+*
+* CentOS 7
+* 
+* Install Redmine from source code
+*
+* https://github.com/jiannelli/vagrant-redmine/blob/master/provision.sh
+* http://www.redmine.org/projects/redmine/wiki/RedmineInstall/283
+******************************************************************************
+
+Step 1: Provision
+	#update packages
+	$ sudo yum update
+
+    	#redmine needs ruby
+	$ sudo yum install ruby
+
+	#mysql
+	$ sudo yum install mariadb-server
+
+	#enable & start mariadb
+	$ sudo systemctl enable mariadb 
+	$ sudo systemctl start mariadb
+
+	#harder our basic installation on mariadb
+	$ mysql_secure_installation
+
+	#redmine dependencies, c bingdings for ruby performance
+	$ sudo yum install gcc mysql-devel ruby-devel rubygems
+
+	#SCM binaries
+	$ sudo yum install svn git
+
+	#ImageMagick
+	$ sudo yum install ImageMagick
+
+Step 2: Configure database
+	#create database
+	$ mysql -u root -p
+	> CREATE DATABASE redmine CHARACTER SET utf8;
+	> CREATE USER 'redmine'@'localhost' IDENTIFIED BY 'my_password';
+	> GRANT ALL PRIVILEGES ON redmine.* TO 'redmine'@'localhost';
+
+Step 3: Build
+	#download redmine (Ref: http://www.redmine.org/projects/redmine/wiki/Download)
+	$ svn co https://svn.redmine.org/redmine/branches/3.4-stable redmine-3.4
+
+	#configure database connections
+	$ cd remine-3.4
+	$ cp config/database.yml.example config/database.yml
+
+	#edit the configuation if needed
+	$ vi config/database.yml
+
+	#Redmine uses Bundler to manage gems dependencie
+	$ sudo gem install bundler
+
+	#lib used by bundler to enable imagemagic
+	$ sudo yum -y install ImageMagick-devel
+
+	#If you need to load gems that are not required by Redmine core, create a file named Gemfile.local at the root of your redmine directory. It will be loaded automatically when running bundle install.
+	$ vi Gemfile.local
+	>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	# Gemfile.local
+	# Fix to avoid centos bug with bundler usage
+	# http://www.redmine.org/issues/25241
+	gem 'json'
+
+	# puma webserver
+	gem 'puma'
+	<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+	#Then you can install all the gems required by Redmine using the following command at the root of your redmine directory
+	#run every time that we configure the database
+	#may be need a long time
+	$ bundle install --without development test  
+
+	#Generate session token
+	$ bundle exec rake generate_secret_token
+	
+	#Generate database tables
+	#Create the database structure, by running the following command under the application root directory
+	$ RAILS_ENV=production bundle exec rake db:migrate
+
+	##Load database with test data (if needed)
+	#export REDMINE_LANG="es"
+	#RAILS_ENV=production bundle exec rake redmine:load_default_data
+
+
+Step 4: Deploy
+	#File system permission
+	#under the root directory of redmine
+	$ mkdir -p tmp tmp/pdf public/plugin_assets
+	#$ sudo chown -R redmine:redmine files log tmp public/plugin_assets
+	#$ sudo chmod -R 755 files log tmp public/plugin_assets
+
+	#be aware of firewalld
+	$ sudo firewall-cmd --permanent --zone=public --add-port=3000/tcp
+	$ sudo firewall-cmd --reload
+
+Step 5: Test the installation
+	#Test the installation by running WEBrick web server
+	#on the root of redmine
+	$ bundle exec rails server webrick -e production
+	or
+	$ bundle exec rails server webrick -e production -b 192.168.1.8
+
+	#server puma
+	$ bundle exec rails server puma -e production -b 192.168.1.8
+
+
+Step 6: Configure Redmine
+	#redmine config
+	$ cp config/configuration.yml.example config/configuration.yml
+	# If you need to override default application settings, simply copy config/configuration.yml.example to config/configuration.yml and edit the new file; the 	# file is well commented by itself, so you should have a look at it.
+
+Step 7: Webservers
+	#Get example files of vagrant-redmine
+	$ git clone https://github.com/jiannelli/vagrant-redmine.git vagrant-redmine
+
+	#Configure puma as a service
+	$ sudo cp vagrant-redmine/files/puma.service /usr/lib/systemd/system/
+	$ sudo vi /usr/lib/systemd/system/puma.service
+	>>
+	User=dcx
+	WorkingDirectory=/home/dcx/redmine-3.4
+	ExecStart=/home/dcx/bin/bundle exec /home/dcx/bin/puma --environment production -b tcp://192.168.1.26:3000
+	>>
+	
+	#Enable so it starts on boot
+	$ sudo systemctl enable puma.service
+
+	#Initial start up
+	$ sudo systemctl start puma.service
+	
+	#Check status
+	$ sudo systemctl status puma.service
+
+	#Apache as a reverse proxy using port 80
+	$ sudo yum install httpd
+
+	#configure
+	$ sudo cp puma-reverseproxy.conf /etc/httpd/conf.d/reverseproxy.conf
+	>>
+	eg: modify the port which your puma server define
+	>>
+	#puma.service
+	>>ExecStart=/home/dcx/bin/bundle exec /home/dcx/bin/puma --environment production -b tcp://localhost:3000<<
+
+	#Selinux (503 Error)
+	$ sudo setsebool -P httpd_can_network_connect on
+
+	#Firewall
+	$ sudo firewall-cmd --permanent --add-service=http
+	$ sudo firewall-cmd --reload
+
+	#enable and start httpd
+	$ sudo systemctl enable httpd
+	$ sudo systemctl start httpd
+
+Step 8: Configure mail
+	# on the root of redmine
+	$ vi conf/configuration.yml
+	***********************************
+	production:
+  	  email_delivery:
+            delivery_method: :async_smtp
+            async_smtp_settings:
+              tls: true                             // If not set, with ssl on will fail     
+      	      enable_starttls_auto: true
+              address: "smtp.mxhichina.com" 
+              port: 465
+              domain: "globalpeak.xyz" 
+       	      authentication: :login
+              user_name: "redmine@globalpeak.xyz" 
+      	      password: "<the password>"            //If take 163 mail service,  客户端授权密码(不是邮箱登录密码)
+	***********************************
+		
+Step 9: SCM configuration
+	Issue: 404 版本库中不存在该条目（或）其修订版本
+	Ans:
+ 	  * 仓库地址不对
+	  * 裸仓库，且是空的
+	  * 运行redmine的用户对仓库地址无读写权限
+
+
+	Redmine整合GIT版本库
+	由于redmine中GIT插件自身对文件读写权限的限制，所以一般有2种处理方式：
+
+	1）修改已经存在的GIT版本的文件读写权限：改为redmine运行用户可以访问；
+
+	2）将GIT版本库以redmine运行用户的身份，创建在redmine安装目录中。
+
+	公司场景：
+	  gitolite已经在运行，上述两种方式都不十分合适。
+
+	方案：
+	  以redmine运行用户的身份，在redmine中创建一个新的版本库，这个版本库作为目前已经存在版本库的镜像，专门给redmine来读取变更历史。开发团队日常的提交，仍然提交到原来的版本库。利用git的hooks，将原来版本库的更新，同步到redmine里面的镜像版本库。
+
+	操作步骤：
+	1. 在gitolite中添加redmine运行用户
+	# 我的redmine用户名为redmine,以redmine用户登陆。我的gitolite-admin在用户globalpeak目录下
+	$ ssh-keygen -t rsa
+	$ sudo cp .ssh/id_rsa.pub /home/globalpeak/Globalpeak_Config/gitolite-admin/keydir/redmine.pub
+	$ vi /home/globalpeak/Globalpeak_Config/gitolite-admin/conf/gitolite.conf
+	# 推送修改完成添加用户redmine
+	# 详细参考gitolite添加用户的操作
+
+	2. 在redmine用户目录下创建镜像版本库
+	$ mkdir gitrepos
+	$ cd gitrepos
+	$ git clone --mirror git@localhost:GEN1000C.git
+	
+	3. 修改原来版本库的hooks
+	$ sudo - git
+	$ cd /home/git/repositories/GEN1000C.git/hooks
+	$ vi post-receive
+	***
+	/bin/git push -- mirror /home/redmine/gitrepos/GEN1000C.git
+	***
+	$ chmod a+x post-receive
+
+	4. 改变镜像版本库的访问权限
+	$ su - redmine
+	$ cd gitrepos/GEN1000C.git
+	$ git config core.sharedrepository 0644
+	
+	5. 将git用户添加到redmine组
+	$ su -
+	# usermod -aG redmine git
+	*************************************************
+	Note:
+	修改用户组后，使用命令id确认下是否修改生效
+	*************************************************
+
+	Notice:
+	如果有错误，重点验证下权限问题，比如仓库整个路径是否都有权限。
+
+	
+
+
+
+
+	 
+	
+	
