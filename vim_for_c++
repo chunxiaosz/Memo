@@ -1,0 +1,134 @@
+" 
+" desc:   A sensible vimrc for C++ development
+" author: chunxiao.dai.sz@outlook.com
+" date:   2019.9.3
+"
+
+" >>
+" Base Config
+"
+
+" define <leader>
+let mapleader=";"
+
+" automatic file detection
+filetype on
+filetype plugin on
+
+" define shortcuts
+nmap LB  0
+nmap LE  $
+
+vnoremap <leader>y "+y
+nmap <leader>p "+p
+
+nmap <leader>q :q<CR>
+nmap <leader>w :w<CR>
+nmap <leader>wq :wq<CR>
+nmap <leader>WQ :wa<CR>:qa<CR>
+nmap <leader>Q  :qa!<CR>
+
+nnoremap nw  <C-W><C-W>
+nnoremap <leader>l  <C-W>l
+nnoremap <leader>h  <C-W>h
+nnoremap <leader>k  <C-W>k
+nnoremap <leader>j  <C-W>j
+nmap <leader>m %
+
+" config auto work
+autocmd BufWritePost $MYVIMRC source $MYVIMRC
+ 
+" realtime search enable
+set incsearch
+" search case insensitive
+set ignorecase
+" close compatible mode
+set nocompatible
+" vim intelligent completion
+set wildmenu
+
+" << Base Config
+
+" >>
+" Vim Plug Manager: vim-plug
+"
+filetype off
+call plug#begin()
+Plug 'fatih/molokai'
+Plug 'vim-scripts/phd'
+Plug 'altercation/vim-colors-solarized'
+"Plug 'powerline/powerline'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'tpope/vim-fugitive'
+Plug 'AndrewRadev/splitjoin.vim'
+Plug 'SirVer/ultisnips'
+Plug 'ctrlpvim/ctrlp.vim'
+Plug 'majutsushi/tagbar'
+call plug#end()
+filetype plugin indent on
+" << 
+
+" Color scheme
+set background=dark
+"colorscheme solarized
+"colorscheme molokai
+"colorscheme phd
+if has("gui_running")
+    colorscheme solarized
+    set guifont=Source\ Code\ Pro\ 18
+endif
+
+" >> 
+" works in gvim mode
+"
+" disable cursor blink
+set gcr=a:block-blinkon0
+" disable scrollbar view
+set guioptions-=r
+set guioptions-=R
+set guioptions-=l
+set guioptions-=L
+" disable menu and toolbar view
+"set guioptions-=T
+"set guioptions-=m
+
+fun! ToggleFullscreen()
+    call system("wmctrl -ir " . v:windowid . " -b toggle,fullscreen")
+endf
+map <silent><F11> :call ToggleFullscreen()<CR>
+autocmd VimEnter * call ToggleFullscreen()
+
+" <<
+
+" >>
+" useful supporting infomation
+"
+" show status bar
+set laststatus=2
+" show cursor position
+set ruler
+" show line number
+set number
+" highlight current row/column
+set cursorline
+set cursorcolumn
+if !has("gui_running")
+    hi CursorLine cterm=NONE ctermbg=238 ctermfg=NONE guibg=black guifg=NONE
+    hi CursorColumn cterm=NONE ctermbg=238 ctermfg=NONE guibg=black guifg=NONE
+endif
+" highlight serach result
+set hlsearch
+
+" disable line wrap
+set nowrap
+" airline plugin config
+" :help airline 
+let g:airline_powerline_fonts = 1
+if !exists('g:airline_symbols')
+    let g:airline_symbols = {}
+endif
+"let g:airline#extensions#tabline#enabled = 1 
+"let g:airline_section_b = airline#section#create_left(['ffenc','hunks','%f'])
+ 
+" >> 
