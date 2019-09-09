@@ -57,14 +57,21 @@ call plug#begin()
 Plug 'fatih/molokai'
 Plug 'vim-scripts/phd'
 Plug 'altercation/vim-colors-solarized'
-"Plug 'powerline/powerline'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'tpope/vim-fugitive'
-Plug 'AndrewRadev/splitjoin.vim'
-Plug 'SirVer/ultisnips'
-Plug 'ctrlpvim/ctrlp.vim'
+Plug 'octol/vim-cpp-enhanced-highlight'
+Plug 'nathanaelkane/vim-indent-guides'
+Plug 'derekwyatt/vim-fswitch'
+Plug 'kshenoy/vim-signature'
+Plug 'vim-scripts/BOOKMARKS--Mark-and-Highlight-Full-Lines'
 Plug 'majutsushi/tagbar'
+Plug 'vim-scripts/indexer.tar.gz'
+Plug 'vim-scripts/DfrankUtil'
+Plug 'vim-scripts/vimprj'
+Plug 'dyng/ctrlsf.vim'
+Plug 'terryma/vim-multiple-cursors'
+Plug 'SirVer/ultisnips'
 call plug#end()
 filetype plugin indent on
 " << 
@@ -132,3 +139,200 @@ endif
 "let g:airline_section_b = airline#section#create_left(['ffenc','hunks','%f'])
  
 " >> 
+" Syntax Analysis
+"
+syntax enable
+syntax on
+" vim-cpp-enhanced-highlight plugin
+" :help cpp
+" syntax keyword cppSTLtype [...]
+" <<
+
+" >>
+" indent
+filetype indent on
+set expandtab
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+" Indent Guides plugin
+let g:indent_guides_enable_on_vim_startup=0
+let g:indent_guides_start_level=2
+let g:indent_guides_guide_size=1
+nmap <silent> <leader>i <Plug>IndentGuidesToggle
+let g:indent_guides_auto_colors=0
+autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd ctermbg=3
+autocmd VimEnter,Colorscheme * :hi IndentGuidesEven ctermbg=4
+" <<
+
+" >>
+" code folding
+" za: close or open current fold
+" zM: close all folds
+" zR: open all folds
+set foldmethod=indent
+set foldmethod=syntax
+set nofoldenable
+" <<
+
+" >>
+" vim-fswitch plugin
+" switch between *.cpp and *.h
+nmap <silent> <leader>sw :FSHere<CR>
+" <<
+
+" >>
+" Code Markup
+" vim-signature plugin
+" mx: set/unset mark with name x
+"
+let g:SignatureMap = {
+    \ 'Leader'            :  "m",
+    \ 'PlaceNextMark'     :  "m,",
+    \ 'ToggleMarkAtLine'  :  "m.",
+    \ 'PurgeMarkAtLine'   :  "m-",
+    \ 'DeleteMark'        :  "dm",
+    \ 'PurgeMarks'        :  "mda",
+    \ 'PurgeMarkers'      :  "m<BS>",
+    \ 'GotoNextLineAlpha' :  "']",
+    \ 'GotoPrevLineAlpha' :  "'[",
+    \ 'GotoNextSpotAlpha' :  "`]",
+    \ 'GotoPrevSpotAlpha' :  "`[",
+    \ 'GotoNextLineByPos' :  "]'",
+    \ 'GotoPrevLineByPos' :  "['",
+    \ 'GotoNextSpotByPos' :  "mn",
+    \ 'GotoPrevSpotByPos' :  "mp",
+    \ 'GotoNextMarker'    :  "]+",
+    \ 'GotoPrevMarker'    :  "[-",
+    \ 'GotoNextMarkerAny' :  "]=",
+    \ 'GotoPrevMarkerAny' :  "[=",
+    \ 'ListLocalMarks'    :  "m/",
+    \ 'ListLocalMarkers'  :  "m?",
+    \ }
+" BOOKMARKS--Mark-and-Highlight-Full-Lines
+" <Usage>
+"   F1: Turn on/update highlighting for all lines with markers
+"   F2: Turn off highlighting for lines with markers
+"   F5: Add a mark on the current line (and highlight)
+" <<
+
+" >>
+" identifier list by tag
+" tagbar plugin config
+"
+let tagbar_left=1
+nnoremap <leader>il :TagbarToggle<CR>
+let tagbar_width=30
+let g:tagbar_compact=1
+let g:tagbar_type_cpp = {
+    \ 'ctagstype'  :  'c++',
+    \ 'kinds'      :  [
+        \ 'c:classes:0:1',
+        \ 'd:macros:0:1',
+        \ 'e:enumerators:0:0',
+        \ 'f:functions:0:1',
+        \ 'g:enumeration:0:1',
+        \ 'l:local:0:1',
+        \ 'm:members:0:1',
+        \ 'n:namespaces:0:1',
+        \ 'p:functions_prototypes:0:1',
+        \ 's:structs:0:1',
+        \ 't:typedefs:0:1',
+        \ 'u:unions:0:1',
+        \ 'v:global:0:1',
+        \ 'x:external:0:1'
+    \ ], 
+    \ 'sro'         :  '::',
+    \ 'kind2scope'  :  {
+        \ 'g' : 'enum',
+        \ 'n' : 'namespace',
+        \ 'c' : 'class',
+        \ 's' : 'struct',
+        \ 'u' : 'union'
+    \ },
+    \ 'scope2kind'  :  {
+        \ 'enum'      : 'g',
+        \ 'namespace' : 'n',
+        \ 'class'     : 'c',
+        \ 'struct'    : 's',
+        \ 'union'     : 'u'
+    \ }
+\ }
+" build tag file
+" ctags -R --c++-kinds=+p+l+x+c+d+e+f+g+m+n+s+t+u+v --fields=+liaS --extra=+q
+" --language-force=c++
+" <<
+
+" >>
+" Code Navigator
+" 
+
+" Based on Tag 
+"
+" indexer plugin
+" default --fields=+iaS does not meet YCM's requirement
+let g:indexer_ctagsCommandLineOptions="--c++-kinds=+l+p+x+c+d+e+f+g+m+n+s+t+u+v --fields=+iaSl --extra=+q"
+
+nmap <leader>tn :tnext<CR>
+nmap <leader>tp :tprevious<CR>
+
+" Based on Sematics
+"
+nnoremap <leader>jc :YcmCompleter GotoDeclaration<CR>
+nnoremap <leader>jd :YcmCompleter GotoDefinition<CR>
+
+" <<
+
+" >>
+" Search
+" ctrlsF.vim plugin
+nnoremap <leader>sp :CtrlSF<CR>
+
+" <<
+
+" >>
+" Replace
+"
+" quick replace
+" vim-multiple-cursors
+" key <c> 
+if !has('gui_running')
+    map "in Insert mode, type Ctrl+v Alt+n here" <A-n>
+endif
+let g:multi_cursor_use_default_mapping=0
+let g:multi_cursor_next_key='<S-n>'
+let g:multi_cursor_skip_key='<S-k>'
+let g:multi_cursor_select_all_word_key='<S-B>'
+let g:multi_cursor_quit_key='<Esc>'
+
+" accurate replace
+" vim command
+" :[range]s/{pattern}/{string}/[flags]
+" 
+" replace function
+function! Replace(confirm, wholeword, replace)
+    wa
+    let flag = ''
+    if a:confirm
+        let flag .= 'gec'
+    else
+        let flag .= 'ge'
+    endif
+    let search = ''
+    if a:wholeword
+        let search .= '\<' . escape(expand('<cword>'), '/\.*$^~[') . '\>'
+    else
+        let search .= expand('<cword>')
+    endif
+    let replace = escape(a:replace, '/\&~')
+    execute 'argdo %s/' . search . '/' . replace . '/' . flag . '| update'
+endfunction
+nnoremap <leader>R :call Replace(0, 0, input('Replace '.expand('<cword>').' with: '))<CR>
+nnoremap <leader>rw :call Replace(0, 1, input('Replace '.expand('<cword>').' with: '))<CR>
+nnoremap <leader>rc :call Replace(1, 0, input('Replace '.expand('<cword>').' with: '))<CR>
+nnoremap <leader>rcw :call Replace(1, 1, input('Replace '.expand('<cword>').' with: '))<CR>
+nnoremap <leader>rwc :call Replace(1, 1, input('Replace '.expand('<cword>').' with: '))<CR>
+
+" <<
+
+
