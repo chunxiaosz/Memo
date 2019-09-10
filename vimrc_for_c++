@@ -71,7 +71,18 @@ Plug 'vim-scripts/DfrankUtil'
 Plug 'vim-scripts/vimprj'
 Plug 'dyng/ctrlsf.vim'
 Plug 'terryma/vim-multiple-cursors'
+Plug 'scrooloose/nerdcommenter'
+Plug 'vim-scripts/DrawIt'
 Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
+Plug 'ycm-core/YouCompleteMe'
+Plug 'derekwyatt/vim-protodef'
+Plug 'scrooloose/nerdtree'
+Plug 'fholgado/minibufexpl.vim'
+Plug 'gcmt/wildfire.vim'
+Plug 'sjl/gundo.vim'
+Plug 'Lokaltog/vim-easymotion'
+Plug 'suan/vim-instant-markdown'
 call plug#end()
 filetype plugin indent on
 " << 
@@ -272,14 +283,15 @@ let g:tagbar_type_cpp = {
 " indexer plugin
 " default --fields=+iaS does not meet YCM's requirement
 let g:indexer_ctagsCommandLineOptions="--c++-kinds=+l+p+x+c+d+e+f+g+m+n+s+t+u+v --fields=+iaSl --extra=+q"
-
+" before traverse, first init tag stack: ctrl-]
 nmap <leader>tn :tnext<CR>
 nmap <leader>tp :tprevious<CR>
 
 " Based on Sematics
 "
-nnoremap <leader>jc :YcmCompleter GotoDeclaration<CR>
-nnoremap <leader>jd :YcmCompleter GotoDefinition<CR>
+" Ctrl+O jump back;
+nnoremap <leader>jc :YcmCompleter GoToDeclaration<CR>
+nnoremap <leader>jd :YcmCompleter GoToDefinition<CR>
 
 " <<
 
@@ -295,7 +307,7 @@ nnoremap <leader>sp :CtrlSF<CR>
 "
 " quick replace
 " vim-multiple-cursors
-" key <c> 
+" key <c>  
 if !has('gui_running')
     map "in Insert mode, type Ctrl+v Alt+n here" <A-n>
 endif
@@ -315,7 +327,7 @@ function! Replace(confirm, wholeword, replace)
     let flag = ''
     if a:confirm
         let flag .= 'gec'
-    else
+    else 
         let flag .= 'ge'
     endif
     let search = ''
@@ -333,6 +345,47 @@ nnoremap <leader>rc :call Replace(1, 0, input('Replace '.expand('<cword>').' wit
 nnoremap <leader>rcw :call Replace(1, 1, input('Replace '.expand('<cword>').' with: '))<CR>
 nnoremap <leader>rwc :call Replace(1, 1, input('Replace '.expand('<cword>').' with: '))<CR>
 
+" << 
+
+" >>
+" Template completion
+"
+" UltiSnips
+" vim-snippets: https://github.com/honza/vim-snippets
+" let g:UltiSnipsSnippetDirectories=["dcxsnippets"]
+let g:UltiSnipsExpandTrigger="<leader><tab>"
+let g:UltiSnipsJumpForwardTrigger="<leader><tab>"
+let g:UltiSnipsJumpBackwardTrigger="<leader><s-tab>"
 " <<
+ 
+" >>
+" Code completion
+"
+" YCM: http://ycm-core.github.io/YouCompleteMe/
+"
+let g:ycm_use_clangd = 0
+
+" YCM Menu
+highlight Pmenu ctermfg=7 ctermbg=8 guifg=#005f87 guibg=#eee8d5
+highlight PmenuSel ctermfg=2 ctermbg=3 guifg=#afd700 guibg=#106900
+
+let g:ycm_complete_in_comments=1
+let g:ycm_confirm_extra_conf=0
+
+let g:ycm_collect_identifiers_from_tags_files=1
+" C++ standard tag
+set tags+=/home/dcx/.vim/tags/stdcpp.tags
+
+" YCM integrate OmniCppComplete engine
+inoremap <leader>; <C-x><C-o>
+
+set completeopt-=preview
+
+let g:ycm_min_num_of_chars_for_completion=1
+let g:ycm_cache_omnifunc=0
+let g:ycm_seed_identifier_with_syntax=1
+
+" <<
+"
 
 
