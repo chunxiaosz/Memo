@@ -85,7 +85,9 @@ set guioptions+=L
     结对符有： (),[],{}
     跳转命令： %
     
-12. 
+12. 插件vim-multiple-cursors 
+    使用笔记见《Ubuntu 18使用笔记》 item 11
+
 
 
 
