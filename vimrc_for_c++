@@ -372,9 +372,9 @@ highlight PmenuSel ctermfg=2 ctermbg=3 guifg=#afd700 guibg=#106900
 let g:ycm_complete_in_comments=1
 let g:ycm_confirm_extra_conf=0
 
-let g:ycm_collect_identifiers_from_tags_files=1
+let g:ycm_collect_identifiers_from_tags_files=0
 " C++ standard tag
-set tags+=/home/dcx/.vim/tags/stdcpp.tags
+" set tags+=/home/dcx/.vim/tags/stdcpp.tags
 
 " YCM integrate OmniCppComplete engine
 inoremap <leader>; <C-x><C-o>
@@ -388,4 +388,72 @@ let g:ycm_seed_identifier_with_syntax=1
 " <<
 "
 
+" vim-protodef 
+" Usage: <leader>PP
+let g:disable_protodef_sorting=1
 
+" >>
+" library info search
+" 
+" C++: 
+"   http://www.cplusplus.com/reference/
+"   http://en.cppreference.com/w/Cppreference:Archives
+" Linux:
+"   http://pubs.opengroup.org/onlinepubs/9699919799/functions/contents.html
+"   http://man7.org/linux/man-pages/dir_all_alphabetic.html
+source $VIMRUNTIME/ftplugin/man.vim
+nmap <leader>man :Man 3 <cword><CR>
+map <leader>mans :call Stdinfo(expand("<cword>"))<CR>
+function! Stdinfo(word)
+    exe ":Man std::".a:word
+endfunction
+" <<
+
+" >>
+" Project Manager
+" NERDTree
+" r: refresh
+" I: show/hidden hidden files
+nmap <leader>fl :NERDTreeToggle<CR>
+let NERDTreeWinSize=22
+let NERDTreeWinPos="right"
+let NERDTreeShowHidden=1
+let NERDTreeMinimalUI=1
+let NERDTreeAutoDeleteBuffer=1
+
+" >>
+" Multi-document 
+"
+" MiniBufExplorer
+" In Terminial, <C-Tab> not works
+" s: split vertical
+" v: split horizontal
+map <leader>bl :MBEToggle<CR>
+map <leader>nb :MBEbn<CR>
+map <leader>nm :MBEbp<CR>
+" <<
+
+" >>
+" restore envirenment
+"
+set sessionoptions="blank,globals,localoptions,tabpages,sesdir,folds,help,options,resize,windpos,winsize"
+set undodir=~/.undo_history/
+set undofile
+
+map <leader>ss :mksession! my.vim<CR>
+map <leader>rs :source my.vim<CR>
+
+" >>
+" Build
+"
+nmap <leader>m :wa<CR> :cd build/<CR> :!rm -rf main<CR> :!cmake CMakeLists.txt<CR>:make<CR><CR> :cw<CR> :cd ..<CR>
+nmap <leader>g :wa<CR> :cd build/<CR> :!rm -rf main<CR> :!cmake CMakeLists.txt<CR>:make<CR><CR> :cw<CR> :cd ..<CR> :!build/main<CR>
+
+" <<
+"
+map <SPACE> <Plug>(wildfire-fuel)
+map <leader><SPACE> <Plug>(wildfire-water)
+
+let g:wildfire_objects = ["i'", 'i"', "i)", "i]", "i}", "i>", "ip"]
+
+" <<
